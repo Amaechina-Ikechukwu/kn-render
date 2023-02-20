@@ -53,7 +53,7 @@ router.post("/", async (req, res) => {
                 isRead: false,
                 uid: "openai",
               })
-              .then((result) => res.json({ success: true }))
+              .then((result) => res.json({ success: true, message: result }),res.json({ success: true, result:result }))
               .catch((error) => res.json({ success: true, message: error }));
           })
           .catch((error) => {
