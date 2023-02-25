@@ -7,6 +7,7 @@ const { getAuth } = require("firebase-admin/auth");
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
 const openai = new OpenAIApi(configuration);
 
 router.post("/", async (req, res) => {
@@ -37,8 +38,14 @@ router.post("/", async (req, res) => {
           .catch((error) => {});
         await openai
           .createCompletion({
-            model: "text-davinci-002",
+            model: "text-davinci-003",
             prompt: message,
+            temperature: 0.9,
+            max_tokens: 150,
+            top_p: 1,
+            frequency_penalty: 0.0,
+            presence_penalty: 0.6,
+            stop: [" Human:", " AI:"],
           })
           .then(async (result) => {
             await admin
@@ -53,7 +60,10 @@ router.post("/", async (req, res) => {
                 isRead: false,
                 uid: "openai",
               })
-              .then((result) => res.json({ success: true, message: result }),res.json({ success: true, result:result }))
+              .then(
+                (result) => res.json({ success: true, message: result }),
+                res.json({ success: true, result: result })
+              )
               .catch((error) => res.json({ success: true, message: error }));
           })
           .catch((error) => {
