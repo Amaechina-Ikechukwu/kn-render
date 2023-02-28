@@ -18,12 +18,16 @@ const createAvatar = require("./profile/createAvatar");
 const createuser = require("./users/createusers");
 const getuser = require("./users/getusers");
 const chatopenai = require("./chats/openai");
+const getUniversities = require("./profile/getUniversities");
+const setUniversity = require("./profile/setUniversity");
 app.use("/user", userRouter);
 app.use("/getusers", getUser);
 app.use("/createavatar", createAvatar);
 app.use("/createuser", createuser);
 app.use("/getuser", getuser);
 app.use("/chatopenai", chatopenai);
+app.use("/universities", getUniversities);
+app.use("/setuniversity", setUniversity);
 
 // // Create and deploy your first functions
 // // https://firebase.google.com/docs/functions/get-started
