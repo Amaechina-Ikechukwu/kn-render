@@ -32,9 +32,9 @@ app.use("/createavatar", createAvatar);
 app.use("/createuser", createuser);
 app.use("/getuser", getuser);
 app.use("/chatopenai", chatopenai);
-app.use("/universities", getUniversities);
+
 app.use("/setuniversity", setUniversity);
-app.use("/u", universityList);
+app.use("/getuniversities", universityList);
 
 // // If modifying these scopes, delete token.json.
 // const SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"];
