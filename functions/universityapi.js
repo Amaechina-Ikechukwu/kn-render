@@ -3,7 +3,7 @@ const path = require("path");
 const process = require("process");
 const { authenticate } = require("@google-cloud/local-auth");
 const { google } = require("googleapis");
-
+const router = require("express").Router();
 // If modifying these scopes, delete token.json.
 const SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"];
 // The file token.json stores the user's access and refresh tokens, and is
@@ -50,42 +50,53 @@ async function saveCredentials(client) {
  * Load or request or authorization to call APIs.
  *
  */
-async function authorize() {
-  let client = await loadSavedCredentialsIfExist();
-  if (client) {
+router.get("/", async (req, res) => {
+  async function authorize() {
+    let client = await loadSavedCredentialsIfExist();
+    if (client) {
+      return client;
+    }
+    client = await authenticate({
+      scopes: SCOPES,
+      keyfilePath: CREDENTIALS_PATH,
+    });
+    if (client.credentials) {
+      await saveCredentials(client);
+    }
     return client;
   }
-  client = await authenticate({
-    scopes: SCOPES,
-    keyfilePath: CREDENTIALS_PATH,
-  });
-  if (client.credentials) {
-    await saveCredentials(client);
-  }
-  return client;
-}
 
-/**
- * Prints the names and majors of students in a sample spreadsheet:
- * @see https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
- * @param {google.auth.OAuth2} auth The authenticated Google OAuth client.
- */
-async function listMajors(auth) {
-  const sheets = google.sheets({ version: "v4", auth });
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: process.env.SHEET_ID,
-    range: "Sheet1",
-  });
-  const rows = res.data.values;
-  if (!rows || rows.length === 0) {
-    console.log("No data found.");
-    return;
-  }
-  console.log("Name, Major:");
-  rows.forEach((row) => {
-    // Print columns A and E, which correspond to indices 0 and 4.
-    console.log(`${row[0]}, ${row[4]}`);
-  });
-}
+  /**
+   * Prints the names and majors of students in a sample spreadsheet:
+   * @see https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+   * @param {google.auth.OAuth2} auth The authenticated Google OAuth client.
+   */ let list = [];
+  async function listMajors(auth) {
+    const sheets = google.sheets({ version: "v4", auth });
+    const sheetData = await sheets.spreadsheets.values.get({
+      spreadsheetId: process.env.SHEET_ID,
+      range: "Sheet1",
+    });
+    const rows = sheetData.data.values;
+    if (!rows || rows.length === 0) {
+      console.log("No data found.");
+      return;
+    }
 
-authorize().then(listMajors).catch(console.error);
+    rows.forEach((row) => {
+      // Print columns A and E, which correspond to indices 0 and 4.
+      list.push({ rank: row[0], university: row[1], state: row[2] });
+    });
+
+    res.status(200).json({ success: true, data: list });
+    return list;
+  }
+
+  authorize()
+    .then(listMajors)
+    .catch((e) => {
+      console.log(e);
+      return;
+    });
+});
+module.exports = router;
