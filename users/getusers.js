@@ -1,5 +1,5 @@
 const { getAuth } = require("firebase-admin/auth");
-
+const admin = require("firebase-admin");
 const router = require("express").Router();
 router.get("/", async (req, res) => {
   const { headers, body } = req;
@@ -8,14 +8,18 @@ router.get("/", async (req, res) => {
   if (headers.authorization == null || headers.authorization == undefined) {
     res.json({ message: "please add headers" });
   } else {
-    getAuth()
+    let profile = [];
+    await getAuth()
       .getUser(token)
-      .then((result) =>
-        res.status(200).json({ success: true, data: result.toJSON() })
-      )
-      .catch(() => {
-        res.json("No user found");
-      });
+      .then((result) => profile.push(...result))
+      .catch(() => {});
+    const snapshot = admin.firestore().collection("profile").doc(token);
+    const userSecondaryData = await snapshot.get();
+
+    profile.push(userSecondaryData.data());
+
+    console.log(profile);
+    res.json({});
   }
 });
 

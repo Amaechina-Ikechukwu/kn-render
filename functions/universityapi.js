@@ -85,7 +85,7 @@ router.get("/", async (req, res) => {
 
     rows.forEach((row) => {
       // Print columns A and E, which correspond to indices 0 and 4.
-      list.push({ rank: row[0], university: row[1], state: row[2] });
+      list.push({ rank: row[0], university: row[1], town: row[2] });
     });
 
     res.status(200).json({ success: true, data: list });
@@ -95,7 +95,7 @@ router.get("/", async (req, res) => {
   authorize()
     .then(listMajors)
     .catch((e) => {
-      console.log(e);
+      res.json({ success: false, message: JSON.stringify(e) });
       return;
     });
 });
