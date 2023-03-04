@@ -26,6 +26,8 @@ const chatopenai = require("./chats/openai");
 const getUniversities = require("./profile/getUniversities");
 const setUniversity = require("./profile/setUniversity");
 const universityList = require("./functions/universityapi");
+const facultyList = require("./functions/facultyapi");
+const departmentList = require("./functions/departmentapi");
 app.use("/user", userRouter);
 app.use("/getusers", getUser);
 app.use("/createavatar", createAvatar);
@@ -35,4 +37,6 @@ app.use("/chatopenai", chatopenai);
 
 app.use("/setuniversity", setUniversity);
 app.use("/getuniversities", universityList);
+app.use("/getfaculties", facultyList);
+app.use("/getdepartments", departmentList);
 app.listen(process.env.PORT || 3000);

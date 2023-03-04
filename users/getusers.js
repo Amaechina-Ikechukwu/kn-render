@@ -5,21 +5,22 @@ router.get("/", async (req, res) => {
   const { headers, body } = req;
   const token = headers.authorization.split(" ")[1];
 
-  if (headers.authorization == null || headers.authorization == undefined) {
+  if (token == null || token == undefined) {
     res.json({ message: "please add headers" });
   } else {
     let profile = [];
     await getAuth()
       .getUser(token)
-      .then((result) => profile.push(...result))
-      .catch(() => {});
-    const snapshot = admin.firestore().collection("profile").doc(token);
-    const userSecondaryData = await snapshot.get();
+      .then(async (result) => {
+        const snapshot = admin.firestore().collection("profile").doc(token);
+        const userSecondaryData = await snapshot.get();
+        const allProfile = Object.assign(result, userSecondaryData.data());
 
-    profile.push(userSecondaryData.data());
-
-    console.log(profile);
-    res.json({});
+        res.json({ success: true, data: allProfile });
+      })
+      .catch((e) => {
+        res.json({ message: e });
+      });
   }
 });
 
