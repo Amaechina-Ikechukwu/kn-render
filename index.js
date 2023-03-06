@@ -14,7 +14,9 @@ const admin = require("firebase-admin");
 admin.initializeApp({
   credential: admin.credential.cert(service),
   storageBucket: process.env.S_B,
+  ignoreUndefinedProperties: true,
 });
+admin.firestore().settings({ ignoreUndefinedProperties: true });
 app.use(cors());
 app.use(express.json());
 const userRouter = require("./users/user");
@@ -28,6 +30,8 @@ const setUniversity = require("./profile/setUniversity");
 const universityList = require("./functions/universityapi");
 const facultyList = require("./functions/facultyapi");
 const departmentList = require("./functions/departmentapi");
+const facultypost = require("./post/facultyposts");
+const allpost = require("./post/AllPost");
 app.use("/user", userRouter);
 app.use("/getusers", getUser);
 app.use("/createavatar", createAvatar);
@@ -39,4 +43,6 @@ app.use("/setuniversity", setUniversity);
 app.use("/getuniversities", universityList);
 app.use("/getfaculties", facultyList);
 app.use("/getdepartments", departmentList);
+app.use("/faculty", facultypost);
+app.use("./post", allpost);
 app.listen(process.env.PORT || 3000);
